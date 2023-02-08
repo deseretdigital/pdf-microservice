@@ -1,0 +1,27 @@
+version: "3.5"
+services:
+  cars-api:
+    image: docker.ddm.io/pdf-microservice:production
+    build: .
+    networks:
+      # Required to connect to datadog-agent
+      - datadog-agent-network
+    environment:
+      - NODE_ENV=production
+      - DD_HOSTNAME=datadog-agent
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: [node.role == worker]
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 256M
+
+networks:
+  # datadog-agent-network is an external network that Datadog agents run on.
+  # Attaching to this network allows container services to connect to the datadog-agent hosts
+  datadog-agent-network:
+    external: true
+    name: datadog-agent-network
